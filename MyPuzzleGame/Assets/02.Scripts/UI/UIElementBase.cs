@@ -3,12 +3,14 @@ using UnityEngine.UI;
 
 namespace Core.UI
 {
-    public class UIElementBase : MonoBehaviour
+    public abstract class UIElementBase : MonoBehaviour
     {
         //============================================================================================
+        //Fields ~ 
         Canvas m_canvas;
         //============================================================================================
-        public virtual void Start()
+        //Unity Func~
+        protected virtual void Awake()
         {
             m_canvas = GetComponentInParent<Canvas>();
         }

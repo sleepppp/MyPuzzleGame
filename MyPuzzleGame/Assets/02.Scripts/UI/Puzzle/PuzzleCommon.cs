@@ -2,11 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.UI
+namespace Core
 {
-    public enum NodeType
+    public enum NodeType : int
     {
         Empty = 0,
         Fill = 1
+    }
+
+    public enum PieceType : int
+    {
+        PhysicsAttack = 0,
+        MagicAttack = 1,
+        Photion = 2,
+        Coin = 3,
+        Skull = 4
     }
 }
