@@ -6,10 +6,17 @@ using Core.Data;
 
 namespace Core
 {
+    public enum GameState
+    {
+        WaitInit,
+        Play
+    }
+
     public class GameMode : MonoBehaviour
     {
         [SerializeField] PanelBoard m_board;
         [SerializeField] SOPiece m_soPiece;
+        GameState m_gameState = GameState.WaitInit;
 
         public PanelBoard board
         {
@@ -23,5 +30,10 @@ namespace Core
         }
 
         public SOPiece soPiece { get { return m_soPiece; } }
+        public GameState gameState
+        {
+            get { return m_gameState; }
+            set { m_gameState = value; }
+        }
     }
 }

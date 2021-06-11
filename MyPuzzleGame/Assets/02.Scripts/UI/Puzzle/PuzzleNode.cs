@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Core;
+using Core.Data;
 
 namespace Core.UI
 {
@@ -11,21 +12,22 @@ namespace Core.UI
         //Fields~
         Image m_image;
         NodeType m_nodeType;
-
+        Indexer m_indexer;
         PuzzlePiece m_piece;
         //============================================================================================
         //Property~
-        public NodeType getNodeType { get { return m_nodeType; } }
-        public PuzzlePiece getPiece { get { return m_piece; } }
+        public NodeType nodeType { get { return m_nodeType; } }
+        public PuzzlePiece piece { get { return m_piece; } }
+        public Indexer indexer { get { return m_indexer; } }
+
         //============================================================================================
-        //Unity Func ~
-        protected override void Awake()
+        //public Func~
+        public void Init(Indexer indexer)
         {
-            base.Awake();
-
             m_image = GetComponent<Image>();
-
             m_nodeType = m_image.enabled ? NodeType.Fill : NodeType.Empty;
+
+            m_indexer = indexer;
         }
     }
 }

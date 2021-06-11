@@ -8,6 +8,18 @@ namespace Core.UI
         //============================================================================================
         //Fields ~ 
         Canvas m_canvas;
+        RectTransform m_rectTransform;
+
+        //============================================================================================
+        public RectTransform rectTrasnform
+        {
+            get
+            {
+                if (m_rectTransform == null)
+                    m_rectTransform = transform as RectTransform;
+                return m_rectTransform;
+            }
+        }
         //============================================================================================
         //Unity Func~
         protected virtual void Awake()

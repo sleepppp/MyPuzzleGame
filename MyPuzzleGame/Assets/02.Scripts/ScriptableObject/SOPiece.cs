@@ -15,22 +15,9 @@ namespace Core.Data
 
     //============================================================================================
     // SOPiece ~
+    // SO : ScriptableObject
     public class SOPiece : ScriptableObject
     {
-        //============================================================================================
-        //static Func ~
-        [MenuItem("Assets/Create/Puzzle/PieceInfo")]
-        static void CreateSOPiece()
-        {
-            if(AssetDatabase.IsValidFolder("Assets/Data") == false)
-            {
-                AssetDatabase.CreateFolder("Assets", "Data");
-            }
-
-            SOPiece so = CreateInstance<SOPiece>();
-            AssetDatabase.CreateAsset(so, "Assets/Data/PieceInfo.asset");
-        }
-
         //============================================================================================
         //Field ~ 
         [SerializeField] PieceInfo[] m_pieceInfo;
