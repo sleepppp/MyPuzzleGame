@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Core.Data;
+using DG.Tweening;
 
 namespace Core.UI
 {
@@ -11,7 +12,7 @@ namespace Core.UI
         //============================================================================================
         //Fields~
         Image m_image;
-
+        PuzzleNode m_node;
         PieceInfo m_pieceInfo;
         //============================================================================================
         //Property ~
@@ -29,7 +30,10 @@ namespace Core.UI
             }
         }
 
+        public PuzzleNode node { get { return m_node; } set { m_node = value; } }
+
         //============================================================================================
+        //unity Func~
         protected override void Awake()
         {
             base.Awake();
@@ -37,5 +41,6 @@ namespace Core.UI
             if(m_image == null)
                 m_image = GetComponent<Image>();
         }
+
     }
 }

@@ -17,7 +17,7 @@ namespace Core.UI
         //============================================================================================
         //Property~
         public NodeType nodeType { get { return m_nodeType; } }
-        public PuzzlePiece piece { get { return m_piece; } }
+        public PuzzlePiece piece { get { return m_piece; } set { m_piece = value; } }
         public Indexer indexer { get { return m_indexer; } }
 
         //============================================================================================

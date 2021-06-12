@@ -18,6 +18,11 @@ namespace Core.UI
             return new Indexer(a.x * scalar, a.y * scalar);
         }
 
+        public static Indexer operator+(Indexer a, Indexer b)
+        {
+            return Add(a, b);
+        }
+
         public static Indexer right { get { return new Indexer(1, 0); } }
         public static Indexer left { get { return new Indexer(-1, 0); } }
         public static Indexer top { get { return new Indexer(0, -1); } }
@@ -38,8 +43,16 @@ namespace Core.UI
 
         public Indexer(Vector2 vector2)
         {
-            this.x = (int)vector2.x;
-            this.y = (int)vector2.y;
+            this.x = (int)(vector2.x + float.Epsilon);
+            this.y = (int)(vector2.y + float.Epsilon);
+        }
+
+        public void Normalize()
+        {
+            if(x != 0)
+                this.x = this.x > 0 ? 1 : -1;
+            if (y != 0)
+                this.y = this.y > 0 ? 1 : -1;
         }
 
     }
