@@ -15,11 +15,16 @@ MonoBehaviour:
   m_pieceInfo:
   - Sprite: {fileID: 21300000, guid: 92957765a1c844c7297f5a97b4ae53d5, type: 3}
     Type: 0
+    FXColor: {r: 0.6287825, g: 0.8490566, b: 0.83609927, a: 1}
   - Sprite: {fileID: 21300000, guid: 2937229c487ec42f1a79cf22879769d7, type: 3}
     Type: 1
+    FXColor: {r: 0.92933357, g: 1, b: 0, a: 1}
   - Sprite: {fileID: 21300000, guid: 16d4bfd2c9cb4411084e058fe6a96b74, type: 3}
     Type: 2
+    FXColor: {r: 0.60784316, g: 0.18039216, b: 0.18039216, a: 1}
   - Sprite: {fileID: 21300000, guid: 757758f1a52ef44cf8965211ce45e1e8, type: 3}
     Type: 3
+    FXColor: {r: 1, g: 0.89863837, b: 0, a: 1}
   - Sprite: {fileID: 21300000, guid: 2dde76a494a164d5ab96dee988f5416b, type: 3}
     Type: 4
+    FXColor: {r: 0.7607844, g: 0.7137255, b: 0.6156863, a: 1}

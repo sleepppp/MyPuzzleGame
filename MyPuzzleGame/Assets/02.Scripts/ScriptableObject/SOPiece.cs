@@ -11,6 +11,7 @@ namespace Core.Data
     {
         public Sprite Sprite;
         public PieceType Type;
+        public Color FXColor;
     }
 
     //============================================================================================

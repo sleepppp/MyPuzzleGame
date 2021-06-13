@@ -7,6 +7,9 @@ using UnityEngine.AddressableAssets;
 using DG.Tweening;
 using Core.Data;
 
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
+
 //TODO 현재 매치 검사를 타이머를 줘서 체크하고 있으므로 개선 필요
 
 namespace Core.UI
@@ -20,7 +23,7 @@ namespace Core.UI
 
         RectTransform m_boardTransform;
         PuzzleNode[,] m_nodeList;
-
+        GameObject m_piecePrefab;
         PuzzlePiece m_selectPiece;
 
         float m_cachedCellDistance; //월드상에서 셀의 실제 간격을 저장해 놓는 변수
@@ -33,6 +36,79 @@ namespace Core.UI
             InitializeComponent();
 
             Addressables.LoadAssetsAsync<GameObject>("PuzzlePiece", InitPiece);
+        }
+
+        void Update()
+        {
+            if (IsAnyPieceTranslateNow() || 
+                GameManager.instance.currentGameMode.IsPlaying() == false)
+                return;
+
+            // {{ 비어있는 노드를 찾습니다 ~
+            List<PuzzlePiece> movedPieceList = null;
+            for(int x =0;x < m_colCount; ++x)
+            {
+                int createCount = 0;
+                for(int y = m_rowCount -1; y >= 0; --y)
+                {
+                    Indexer index = new Indexer(x, y);
+                    PuzzleNode node = GetNode(index);
+                    
+                    if (node.piece != null)
+                        continue;
+
+                    //위에 있는 노드로부터 피스를 찾아옵니다
+                    PuzzlePiece targetPiece = null;
+                    for(int tempY = y -1; tempY >= 0; --tempY)
+                    {
+                        Indexer tempIndex = new Indexer(x, tempY);
+                        PuzzleNode tempNode = GetNode(tempIndex);
+
+                        if (tempNode.piece == null)
+                            continue;
+
+                        targetPiece = tempNode.piece;
+                        break;
+                    }
+                    //끌어 내릴 피스가 있다면... 나하고 역어준다
+                    if(targetPiece != null)
+                    {
+                        DisConnectNodeAndPiece(targetPiece.node, targetPiece);
+                        ConnectNodeAndPiece(node, targetPiece);
+                        MovePieceToNode(targetPiece, 1f).SetEase(Ease.OutBounce);
+
+                        if (movedPieceList == null)
+                            movedPieceList = new List<PuzzlePiece>();
+
+                        movedPieceList.Add(targetPiece);
+                    }
+                    //없다면 피스를 새로 생성해준다
+                    else
+                    {
+                        if (movedPieceList == null)
+                            movedPieceList = new List<PuzzlePiece>();
+
+                        float height = 
+                            Mathf.Abs(m_nodeList[0, 0].transform.position.y - m_nodeList[1, 0].transform.position.y);
+
+                        GameObject newObject = Instantiate(m_piecePrefab, m_nodeList[y, x].transform);
+                        PuzzlePiece piece = newObject.GetComponent<PuzzlePiece>();
+                        ConnectNodeAndPiece(m_nodeList[y, x], piece);
+                        piece.transform.position = m_nodeList[0, x].transform.position + Vector3.up * height +
+                            Vector3.up * height * createCount;
+
+                        piece.pieceInfo = GameManager.instance.currentGameMode.soPiece.GetRandomPieceInfo();
+
+                        MovePieceToNode(piece, 1f).SetEase(Ease.OutBounce);
+                        movedPieceList.Add(piece);
+                        ++createCount;
+                    }
+                }
+            }
+            // }}
+
+            if(movedPieceList != null)
+                Core.Util.Timer.StartTimer(1f, movedPieceList, OnEventEndMovePiece);
         }
 
         //============================================================================================
@@ -56,8 +132,10 @@ namespace Core.UI
 
         void InitPiece(GameObject piecePrefab)
         {
+            m_piecePrefab = piecePrefab;
+
             SOPiece soPiece = GameManager.instance.currentGameMode.soPiece;
-            // GridLayoutGroup은 프레임이 돌기 전까지는 하위 자식들의 좌표를 계산하지 않아 강제해주어야한다. 
+            // GridLayoutGroup은 프레임이 돌기 전까지는 하위 자식들의 좌표를 계산하지 않으므로 연산을 강제해주어야한다. 
             GridLayoutGroup layoutGroup = m_boardTransform.GetComponent<GridLayoutGroup>();
             layoutGroup.CalculateLayoutInputHorizontal();
             layoutGroup.CalculateLayoutInputVertical();
@@ -87,13 +165,13 @@ namespace Core.UI
             {
                 for(int i =0; i < list.Count; ++i)
                 {
-                    list[i].rectTrasnform.DOAnchorPos(Vector2.zero, 1f)
-                        .SetEase(Ease.OutBounce).OnComplete(OnEventEndMovePiece);
-                    ++m_movePieceCount;
+                    MovePieceToNode(list[i], 1f).SetEase(Ease.OutBounce);
                 }
             });
 
             m_cachedCellDistance = height;
+
+            GameManager.instance.currentGameMode.Play();
         }
 
         //============================================================================================
@@ -140,14 +218,25 @@ namespace Core.UI
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (CanDragPiece() == false)
-                return;
-
             if (m_selectPiece == null)
                 return;
 
+            if (CanDragPiece() == false)
+            {
+                m_selectPiece = null;
+                return;
+            }
+
             Vector3 dir = m_selectPiece.transform.position - m_selectPiece.node.transform.position;
             //dir.Normalize();
+
+            //너무 적게 땡겼으면 원래로 돌아가야합니다
+            if(dir.magnitude < m_cachedCellDistance * 0.2f)
+            {
+                MovePieceToNode(m_selectPiece,0.3f);
+                m_selectPiece = null;
+                return;
+            }
 
             Indexer indexDir = Vector3DirToIndexDir(dir);
             indexDir.Normalize();
@@ -165,11 +254,18 @@ namespace Core.UI
                 m_selectPiece.rectTrasnform.DOAnchorPos(Vector2.zero, 0.3f).OnComplete(OnEventEndMovePiece);
                 ++m_movePieceCount;
             }
-            
+
+            m_selectPiece = null;
         }
 
         //============================================================================================
         //My Func~
+
+        TweenerCore<Vector2, Vector2, VectorOptions> MovePieceToNode(PuzzlePiece piece,float duration)
+        {
+            ++m_movePieceCount;
+            return piece.rectTrasnform.DOAnchorPos(Vector2.zero, duration).OnComplete(OnEventEndMovePiece);
+        }
 
         //노드와 피스를 상호참조 시켜줍니다.
         public void ConnectNodeAndPiece(PuzzleNode node, PuzzlePiece piece)
@@ -179,6 +275,14 @@ namespace Core.UI
 
             piece.transform.SetParent(node.transform, true);
         }
+
+        public void DisConnectNodeAndPiece(PuzzleNode node,PuzzlePiece piece)
+        {
+            node.piece = null;
+            piece.node = null;
+            piece.transform.SetParent(transform, true);
+        }
+
         //방향벡터를 인덱스로 변환합니다.
         Indexer Vector3DirToIndexDir(Vector3 dir)
         {
@@ -207,6 +311,11 @@ namespace Core.UI
             return m_movePieceCount == 0;
         }
 
+        bool IsAnyPieceTranslateNow()
+        {
+            return m_movePieceCount != 0;
+        }
+
         void SwapPieces(PuzzlePiece pieceA, PuzzlePiece pieceB,bool checkMatch = true)
         {
             if (pieceA == null || pieceB == null)
@@ -218,10 +327,8 @@ namespace Core.UI
             ConnectNodeAndPiece(nodeA, pieceB);
             ConnectNodeAndPiece(nodeB, pieceA);
 
-            pieceA.rectTrasnform.DOAnchorPos(Vector2.zero, 0.3f).OnComplete(OnEventEndMovePiece);
-            pieceB.rectTrasnform.DOAnchorPos(Vector2.zero, 0.3f).OnComplete(OnEventEndMovePiece);
-
-            m_movePieceCount += 2;
+            MovePieceToNode(pieceA, 0.3f);
+            MovePieceToNode(pieceB, 0.3f);
 
             if(checkMatch)
             {
@@ -275,7 +382,8 @@ namespace Core.UI
 
                     PuzzleNode nextNode = GetNode(nextIndex);
                     PuzzlePiece nextPiece = nextNode.piece;
-
+                    if (nextPiece == null)
+                        break;
                     if (nextPiece.pieceInfo.Type != targetType)
                         break;
 
@@ -339,12 +447,50 @@ namespace Core.UI
             }
         }
 
+        PuzzleNode GetTopNode(int colIndex)
+        {
+            if (GetNode(new Indexer(colIndex, 0)).nodeType == NodeType.Fill)
+                return GetNode(new Indexer(colIndex, 0));
+
+            for(int y = 1; y < m_rowCount; ++y)
+            {
+                PuzzleNode node = GetNode(new Indexer(colIndex, y));
+                if (node.nodeType == NodeType.Empty)
+                {
+                    PuzzleNode nextNode = GetNode(new Indexer(colIndex, y + 1));
+                    if (nextNode.nodeType == NodeType.Fill)
+                        return node;
+                }
+            }
+
+            return null;
+        }
+
         //============================================================================================
         //call by delegate~
 
         void OnEventEndMovePiece()
         {
             --m_movePieceCount;
+        }
+
+        void OnEventEndMovePiece(List<PuzzlePiece> movedPieceList)
+        {
+            List<PuzzlePiece> matchList = new List<PuzzlePiece>();
+
+            for(int i =0; i < movedPieceList.Count; ++i)
+            {
+                List<PuzzlePiece> tempList = CheckMatch(movedPieceList[i].node.indexer);
+                MergeMatchList(matchList, tempList);
+            }
+
+            if (matchList.Count != 0)
+            {
+                for (int i = 0; i < matchList.Count; ++i)
+                {
+                    matchList[i].DestroyPiece();
+                }
+            }
         }
 
         void OnEventEndSwap(List<PuzzlePiece> movedPieceList)
@@ -361,6 +507,13 @@ namespace Core.UI
             if(matchList.Count == 0)
             {
                 SwapPieces(movedPieceList[0], movedPieceList[1],false);
+            }
+            else
+            {
+                for(int i =0; i < matchList.Count; ++i)
+                {
+                    matchList[i].DestroyPiece();   
+                }
             }
         }
     }

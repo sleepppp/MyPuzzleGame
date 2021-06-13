@@ -7,8 +7,8 @@ namespace Core.UI
     {
         //============================================================================================
         //Fields ~ 
-        Canvas m_canvas;
-        RectTransform m_rectTransform;
+        protected Canvas m_canvas;
+        protected RectTransform m_rectTransform;
 
         //============================================================================================
         public RectTransform rectTrasnform

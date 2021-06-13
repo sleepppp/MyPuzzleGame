@@ -42,5 +42,23 @@ namespace Core.UI
                 m_image = GetComponent<Image>();
         }
 
+        //============================================================================================
+        //my func~
+        public void DestroyPiece()
+        {
+            Vector3 fxLocation = transform.position;
+            fxLocation.z = m_canvas.planeDistance - 10f;
+            GameObject particleObject = EffectManager.instance.PlayEffect("PuzzlePieceDestroyFX", fxLocation);
+            if(particleObject != null)
+            {
+                //TODO 현재는 마땅한 이펙트가 없어서 해당 파티클로 처리하나 추후에 변경 요망
+                ParticleSystem particleSystem = particleObject.GetComponent<ParticleSystem>();
+                ParticleSystemRenderer renderer = particleSystem.GetComponent<ParticleSystemRenderer>();
+                renderer.material.color = m_pieceInfo.FXColor;
+            }
+            m_node.piece = null;
+            Destroy(gameObject);
+        }
+
     }
 }

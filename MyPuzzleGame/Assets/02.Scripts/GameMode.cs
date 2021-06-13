@@ -14,10 +14,14 @@ namespace Core
 
     public class GameMode : MonoBehaviour
     {
+        //============================================================================================
+        //fields~
         [SerializeField] PanelBoard m_board;
         [SerializeField] SOPiece m_soPiece;
         GameState m_gameState = GameState.WaitInit;
 
+        //============================================================================================
+        //property~
         public PanelBoard board
         {
             get
@@ -34,6 +38,19 @@ namespace Core
         {
             get { return m_gameState; }
             set { m_gameState = value; }
+        }
+
+        //============================================================================================
+        //my func~
+
+        public bool IsPlaying()
+        {
+            return m_gameState == GameState.Play;
+        }
+
+        public void Play()
+        {
+            m_gameState = GameState.Play;
         }
     }
 }
