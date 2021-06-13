@@ -44,7 +44,7 @@ namespace Core.UI
 
         //============================================================================================
         //my func~
-        public void DestroyPiece()
+        public void OnMatchPiece()
         {
             Vector3 fxLocation = transform.position;
             fxLocation.z = m_canvas.planeDistance - 10f;
@@ -56,9 +56,34 @@ namespace Core.UI
                 ParticleSystemRenderer renderer = particleSystem.GetComponent<ParticleSystemRenderer>();
                 renderer.material.color = m_pieceInfo.FXColor;
             }
-            m_node.piece = null;
-            Destroy(gameObject);
+
+            //TODO 현재 UI 매니지먼트가 없어서 우선 이렇게 처리 개선 필요
+            PanelPieceCollect panelPieceCollect = GameObject.Find("PanelPieceCollect").GetComponent<PanelPieceCollect>();
+            PieceCollectContent content = panelPieceCollect.GetContent(m_pieceInfo.Type);
+
+            transform.SetParent(panelPieceCollect.transform, true);
+
+            if (content != null)
+            {
+                Vector3 targetLocation = content.pieceImage.transform.position;
+
+                transform.DOMove(targetLocation, 0.5f).OnComplete(OnEndMoveToCollecter);
+                transform.DOScale(content.pieceImage.transform.localScale,0.4f);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
 
+        //============================================================================================
+        //call back func~
+        void OnEndMoveToCollecter()
+        {
+            PanelPieceCollect panelPieceCollect = GameObject.Find("PanelPieceCollect").GetComponent<PanelPieceCollect>();
+            panelPieceCollect.AddCollect(m_pieceInfo.Type);
+
+            Destroy(gameObject);
+        }
     }
 }

@@ -487,7 +487,7 @@ namespace Core.UI
         void OnMatch(List<PuzzlePiece> matchList)
         {
             List<List<PuzzlePiece>> splitList = SplitMatchList(matchList);
-
+            
             for(int i =0; i < splitList.Count; ++i)
             {
                 Vector3 centerPos = GetCenterPos(splitList[i]);
@@ -497,11 +497,10 @@ namespace Core.UI
                     splitList[i][0].pieceInfo.FXColor);
             }
 
-            Debug.Log("PanelBoard::OnMacth : splitListCount : " + splitList.Count);
-
             for (int i = 0; i < matchList.Count; ++i)
             {
-                matchList[i].DestroyPiece();
+                DisConnectNodeAndPiece(matchList[i].node, matchList[i]);
+                matchList[i].OnMatchPiece();
             }
         }
          

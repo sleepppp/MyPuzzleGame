@@ -16,7 +16,7 @@ namespace Core
         PhysicsAttack = 0,
         MagicAttack = 1,
         Photion = 2,
-        Coin = 3,
-        Skull = 4
+        Skull = 3,
+        Coin = 4
     }
 }
