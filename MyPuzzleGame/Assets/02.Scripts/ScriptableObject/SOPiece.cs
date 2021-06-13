@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 namespace Core.Data
 {
@@ -32,6 +30,31 @@ namespace Core.Data
         public PieceInfo GetRandomPieceInfo()
         {
             return pieceInfo[Random.Range(0, pieceInfo.Length)];
+        }
+
+        public PieceInfo GetRandomPieceInfo(List<PieceType> ignoreList)
+        {
+            List<PieceInfo> list = new List<PieceInfo>();
+
+            for (int i = 0; i < pieceInfo.Length; ++i)
+            {
+                bool bContinue = false;
+                for(int j =0; j < ignoreList.Count; ++j)
+                {
+                    if(pieceInfo[i].Type == ignoreList[j])
+                    {
+                        bContinue = true;
+                        break;
+                    }
+                }
+
+                if (bContinue)
+                    continue;
+
+                list.Add(pieceInfo[i]);
+            }
+
+            return list[Random.Range(0, list.Count)];
         }
     }
 }

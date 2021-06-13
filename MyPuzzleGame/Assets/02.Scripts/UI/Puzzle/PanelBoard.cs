@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -14,7 +13,7 @@ using DG.Tweening.Plugins.Options;
 
 namespace Core.UI
 {
-    public class PanelBoard : UIElementBase,IPointerDownHandler,IDragHandler, IPointerUpHandler
+    public class PanelBoard : UIPanel, IPointerDownHandler,IDragHandler, IPointerUpHandler
     {
         //============================================================================================
         //Fields
@@ -159,6 +158,25 @@ namespace Core.UI
                     pieceList.Add(piece);
                 }
             }
+
+            // {{ 이미 곂쳐 있는 피스는 다른 피스로 변경
+            for(int y= 0;y < m_rowCount; ++y)
+            {
+                for(int x =0;x < m_colCount; ++x)
+                {
+                    List<PuzzlePiece> matchList = CheckMatch(new Indexer(x, y));
+                    if (matchList.Count == 0)
+                        continue;
+                    List<List<PuzzlePiece>> split = SplitMatchList(matchList);
+                    
+                    for(int i =0; i < split.Count; ++i)
+                    {
+                        PuzzlePiece selectedPiece = split[i][split[i].Count - 1];
+                        ChangePieceTypeToUnMatch(selectedPiece);
+                    }
+                }
+            }
+            // }} 
 
             //TODO 임시로 연출처리. 추후에 GameState 추가되면 처리 필요
             Core.Util.Timer.StartTimer(1f, pieceList, (List<PuzzlePiece> list) => 
@@ -466,6 +484,92 @@ namespace Core.UI
             return null;
         }
 
+        void OnMatch(List<PuzzlePiece> matchList)
+        {
+            List<List<PuzzlePiece>> splitList = SplitMatchList(matchList);
+
+            for(int i =0; i < splitList.Count; ++i)
+            {
+                Vector3 centerPos = GetCenterPos(splitList[i]);
+                //TODO 개선 필요
+                myGroup.GetPanel<PanelEffectText>("PanelEffectText").
+                    PlayEffectText((100 * splitList[i].Count).ToString(), centerPos,
+                    splitList[i][0].pieceInfo.FXColor);
+            }
+
+            Debug.Log("PanelBoard::OnMacth : splitListCount : " + splitList.Count);
+
+            for (int i = 0; i < matchList.Count; ++i)
+            {
+                matchList[i].DestroyPiece();
+            }
+        }
+         
+        Vector3 GetCenterPos(List<PuzzlePiece> list)
+        {
+            Vector3 result = Vector3.zero;
+            for (int i = 0; i < list.Count; ++i)
+                result += list[i].transform.position;
+            return result / list.Count;
+        }
+
+        List<List<PuzzlePiece>> SplitMatchList(List<PuzzlePiece> matchList)
+        {
+            if (matchList.Count == 0)
+                return null;
+
+            List<List<PuzzlePiece>> result = new List<List<PuzzlePiece>>();
+            PieceType currentType = matchList[0].pieceInfo.Type;
+            int lastSplitIndex = 0;
+            for(int i = 1; i < matchList.Count; ++i)
+            {
+                if(matchList[i].pieceInfo.Type != currentType)
+                {
+                    List<PuzzlePiece> newList = new List<PuzzlePiece>(i - lastSplitIndex);
+                    for (int j = lastSplitIndex; j < i; ++j)
+                        newList.Add(matchList[j]);
+                    result.Add(newList);
+
+                    currentType = matchList[i].pieceInfo.Type;
+                    lastSplitIndex = i;
+                }
+                if(i == matchList.Count - 3)
+                {
+                    List<PuzzlePiece> newList = new List<PuzzlePiece>(matchList.Count - lastSplitIndex);
+                    for (int j = lastSplitIndex; j < matchList.Count; ++j)
+                        newList.Add(matchList[j]);
+                    result.Add(newList);
+                    break;
+                }
+            }
+
+            if (result.Count == 0)
+                result.Add(matchList);
+
+            return result;
+        }
+
+        void ChangePieceTypeToUnMatch(PuzzlePiece piece)
+        {
+            Indexer index = piece.node.indexer;
+
+            Indexer leftIndex = index + new Indexer(-1, 0);
+            Indexer rightIndex = index + new Indexer(1, 0);
+            Indexer upIndex = index + new Indexer(0, -1);
+            Indexer downIndexe = index + new Indexer(0, 1);
+
+            List<PieceType> ignoreList = new List<PieceType>();
+            
+            if (IsInBoundBoard(leftIndex)) ignoreList.AddUnique(GetPiece(leftIndex).pieceInfo.Type);
+            if (IsInBoundBoard(rightIndex)) ignoreList.AddUnique(GetPiece(rightIndex).pieceInfo.Type);
+            if (IsInBoundBoard(upIndex)) ignoreList.AddUnique(GetPiece(upIndex).pieceInfo.Type);
+            if (IsInBoundBoard(downIndexe)) ignoreList.AddUnique(GetPiece(downIndexe).pieceInfo.Type);
+
+            PieceInfo info = GameManager.instance.currentGameMode.soPiece.GetRandomPieceInfo(ignoreList);
+
+            piece.pieceInfo = info;
+        }
+
         //============================================================================================
         //call by delegate~
 
@@ -486,10 +590,7 @@ namespace Core.UI
 
             if (matchList.Count != 0)
             {
-                for (int i = 0; i < matchList.Count; ++i)
-                {
-                    matchList[i].DestroyPiece();
-                }
+                OnMatch(matchList);
             }
         }
 
@@ -510,10 +611,7 @@ namespace Core.UI
             }
             else
             {
-                for(int i =0; i < matchList.Count; ++i)
-                {
-                    matchList[i].DestroyPiece();   
-                }
+                OnMatch(matchList);
             }
         }
     }

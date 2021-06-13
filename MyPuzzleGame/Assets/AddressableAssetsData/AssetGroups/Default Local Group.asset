@@ -16,19 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: addb6b8f2f69e664d848db64c0383597
-  m_SerializeEntries:
-  - m_GUID: 861bb44c4b54110479dc073dbe2ed269
-    m_Address: PuzzlePieceDestroyFX
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
-  - m_GUID: 50337d370b5d4d240a0ec8687cca281b
-    m_Address: EffectText
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    m_MainAsset: {fileID: 0}
-    m_TargetAsset: {fileID: 0}
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: bcf13c0b96321674a9c23e1d31ad0797, type: 2}
   m_SchemaSet:

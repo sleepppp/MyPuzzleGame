@@ -31,12 +31,5 @@ namespace Core.Data
         {
             return Regex.Split(origin, token);
         }
-
-        //TODO 데이터 타입에 오탈자 검사 해서 보정
-        //public static string ReviseTypeName(string origin)
-        //{
-        //    if(Regex.IsMatch())
-        //    return null;
-        //}
     }
 }

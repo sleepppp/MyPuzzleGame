@@ -54,7 +54,6 @@ namespace Core.Data
                         TableStream.WriteTSVByTable(tsvPathes[i], tables[i]);
                     }
 
-                    //TODO 추후에 코드 생성기 개선되면 자동으로 GameData클래스 생성되게 구현
                     TableStream.WriteGameData(codeFolderPath + "/GameData.cs", m_loadData.NameSpace, tables,
                         tsvPathes);
                 }

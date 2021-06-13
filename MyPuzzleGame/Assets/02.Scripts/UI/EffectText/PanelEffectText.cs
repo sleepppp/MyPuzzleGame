@@ -5,7 +5,7 @@ using UnityEngine.AddressableAssets;
 
 namespace Core.UI
 {
-    public class PanelEffectText : UIElementBase
+    public class PanelEffectText : UIPanel
     {
         //============================================================================================
         //field~
@@ -24,6 +24,24 @@ namespace Core.UI
         }
 
         //============================================================================================
+        //my func~
+        public void PlayEffectText(string text,Vector3 location,Color color)
+        {
+            EffectText effectText = PopSleepEffectText();
+            effectText.gameObject.SetActive(true);
+            effectText.StartTexting(text, location, color);
+            m_activeTextList.AddLast(effectText);
+        }
+
+        EffectText PopSleepEffectText()
+        {
+            LinkedListNode<EffectText> effectText =  m_sleepTextList.Last;
+            m_sleepTextList.RemoveLast();
+
+            return effectText.Value;
+        }
+
+        //============================================================================================
         //callback func~
 
         void OnLoadEffectText(GameObject prefab)
@@ -34,9 +52,18 @@ namespace Core.UI
             {
                 GameObject newObject = Instantiate(m_effectTextPrefab, transform);
                 EffectText effectText = newObject.GetComponent<EffectText>();
-
+                effectText.EventEndTexting += OnEventEndTexting;
+                effectText.gameObject.SetActive(false);
                 m_sleepTextList.AddLast(effectText);
             }
+        }
+
+        void OnEventEndTexting(EffectText effectText)
+        {
+            effectText.gameObject.SetActive(false);
+
+            m_activeTextList.Remove(effectText);
+            m_sleepTextList.AddLast(effectText);
         }
 
     }

@@ -12,5 +12,11 @@ namespace Core
             collection.TryGetValue(key, out result);
             return result;
         }
+
+        public static void AddUnique<T>(this List<T> collection, T value)
+        {
+            if (collection.Contains(value) == false)
+                collection.Add(value);
+        }
     }
 }

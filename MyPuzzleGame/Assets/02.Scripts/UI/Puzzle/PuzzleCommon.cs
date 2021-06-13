@@ -12,6 +12,7 @@ namespace Core
 
     public enum PieceType : int
     {
+        None = -1,
         PhysicsAttack = 0,
         MagicAttack = 1,
         Photion = 2,
