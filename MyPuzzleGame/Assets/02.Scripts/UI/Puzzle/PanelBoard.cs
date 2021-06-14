@@ -178,18 +178,19 @@ namespace Core.UI
             }
             // }} 
 
-            //TODO 임시로 연출처리. 추후에 GameState 추가되면 처리 필요
-            Core.Util.Timer.StartTimer(1f, pieceList, (List<PuzzlePiece> list) => 
-            {
-                for(int i =0; i < list.Count; ++i)
-                {
-                    MovePieceToNode(list[i], 1f).SetEase(Ease.OutBounce);
-                }
-            });
-
             m_cachedCellDistance = height;
 
-            GameManager.instance.currentGameMode.Play();
+            //TODO 임시로 연출처리. 추후에 GameState 추가되면 처리 필요
+            //Core.Util.Timer.StartTimer(1f, pieceList, (List<PuzzlePiece> list) => 
+            //{
+            //    for(int i =0; i < list.Count; ++i)
+            //    {
+            //        MovePieceToNode(list[i], 1f).SetEase(Ease.OutBounce);
+            //    }
+            //});
+
+
+            //GameManager.instance.currentGameMode.Play();
         }
 
         //============================================================================================

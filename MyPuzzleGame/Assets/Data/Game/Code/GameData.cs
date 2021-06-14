@@ -11,9 +11,13 @@ namespace Core.Data
 		public string EffectDataPath = "Assets/Data/Game/TSV/EffectData.tsv";
 		public Dictionary<int,EffectData> EffectData;
 
+		public string DialogueDataPath = "Assets/Data/Game/TSV/DialogueData.tsv";
+		public Dictionary<int,DialogueData> DialogueData;
+
 		public GameData()
 		{
 			EffectData  =  TableStream.LoadTableByTSV(EffectDataPath).TableToDictionary<int,EffectData>();
+			DialogueData  =  TableStream.LoadTableByTSV(DialogueDataPath).TableToDictionary<int,DialogueData>();
 		}
 	}
 }
