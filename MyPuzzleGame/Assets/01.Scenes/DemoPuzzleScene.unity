@@ -1142,6 +1142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ab5f136fcf8129428200bd13ce3a130, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isStartFadeIn: 1
 --- !u!114 &175449036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8466,7 +8467,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f8baa3df024d5c429a4732e6989800c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_currentGameMode: {fileID: 0}
+  m_currentGameMode: {fileID: 359082487}
 --- !u!4 &1927602893
 Transform:
   m_ObjectHideFlags: 0

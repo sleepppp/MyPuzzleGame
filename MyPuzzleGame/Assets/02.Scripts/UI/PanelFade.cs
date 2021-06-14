@@ -7,26 +7,43 @@ namespace Core.UI
 {
     public class PanelFade : UIPanel
     {
+        //============================================================================================
+        //field~
+        [SerializeField] bool m_isStartFadeIn = true;
+
         Image m_fadeImage;
 
+        //============================================================================================
+        //unity func~
         protected override void Awake()
         {
             base.Awake();
 
             m_fadeImage = GetComponent<Image>();
-            m_fadeImage.enabled = false;
             m_fadeImage.color = new Color(0f, 0f, 0f, 1f);
+
+            if(m_isStartFadeIn)
+            {
+                m_fadeImage.enabled = true;
+                FadeIn(2f);
+            }
+            else
+            {
+                m_fadeImage.enabled = false;
+            }
         }
 
+        //============================================================================================
+        //my func~
         void FadeIn(float time)
         {
             m_fadeImage.enabled = true;
-            StartCoroutine(CoroutineFade(time, 0f));
+            UpdateManager.instance.StartRoutine(CoroutineFade(time, 0f));
         }
 
         void FadeOut(float time)
         {
-            StartCoroutine(CoroutineFade(time, 1f));
+            UpdateManager.instance.StartRoutine(CoroutineFade(time, 1f));
         }
 
         IEnumerator CoroutineFade(float time, float targetValue)

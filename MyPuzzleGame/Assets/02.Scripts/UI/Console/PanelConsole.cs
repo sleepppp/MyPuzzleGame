@@ -36,14 +36,6 @@ namespace Core.UI
             Addressables.LoadAssetsAsync<GameObject>("ConsoleText",OnLoadConsoleTextPrefab);
         }
 
-        private void Update()
-        {
-            if(Input.GetKeyDown(KeyCode.Space))
-            {
-                PushText("가자 던전으로~!");
-            }
-        }
-
         //============================================================================================
         //my func~
         Text GetSleepText()
@@ -60,6 +52,7 @@ namespace Core.UI
                 Text textCompont = GetSleepText();
                 textCompont.gameObject.SetActive(true);
                 textCompont.text = text;
+
                 textCompont.transform.position = m_nodeList[m_nodeList.Count - 1].position;
                 m_renderTextQueue.Enqueue(textCompont);
 
@@ -88,6 +81,34 @@ namespace Core.UI
                 textComponent.text = text;
 
                 m_renderTextQueue.Enqueue(textComponent);
+            }
+        }
+
+        public void PopText()
+        {
+            int index = 0;
+            foreach (Text item in m_renderTextQueue)
+            {
+                RectTransform targetNode = m_nodeList[index];
+                item.transform.DOKill();
+                //거리 = 속력 * 시간
+                //시간 = 거리 / 속력
+                item.transform.DOMove(targetNode.position, 
+                    Vector3.Distance(item.transform.position, targetNode.transform.position) / 50f);
+                ++index;
+            }
+
+            Text frontText = m_renderTextQueue.Peek();
+            Core.Util.Timer.StartTimer(1f, () => { frontText.gameObject.SetActive(false); });
+            m_renderTextQueue.Dequeue();
+        }
+
+        public void ClearText()
+        {
+            int removeCount = m_renderTextQueue.Count;
+            for(int i =0; i < removeCount; ++i)
+            {
+                PopText();
             }
         }
 

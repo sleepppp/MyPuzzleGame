@@ -180,7 +180,7 @@ namespace Core.UI
 
             m_cachedCellDistance = height;
 
-            //TODO 임시로 연출처리. 추후에 GameState 추가되면 처리 필요
+            ////TODO 임시로 연출처리. 추후에 GameState 추가되면 처리 필요
             //Core.Util.Timer.StartTimer(1f, pieceList, (List<PuzzlePiece> list) => 
             //{
             //    for(int i =0; i < list.Count; ++i)
@@ -188,8 +188,7 @@ namespace Core.UI
             //        MovePieceToNode(list[i], 1f).SetEase(Ease.OutBounce);
             //    }
             //});
-
-
+            //
             //GameManager.instance.currentGameMode.Play();
         }
 
@@ -215,10 +214,11 @@ namespace Core.UI
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (CanDragPiece() == false)
-                return;
 
             if (m_selectPiece == null)
+                return;
+
+            if (CanDragPiece() == false)
                 return;
 
             Vector3 position = TransformScreenPointToWorldPoint(eventData.position, m_selectPiece.rectTrasnform);
@@ -280,6 +280,17 @@ namespace Core.UI
         //============================================================================================
         //My Func~
 
+        public void OnStartGame()
+        {
+            for(int y=0; y < m_rowCount; ++y)
+            {
+                for(int x=0;x < m_colCount; ++x)
+                {
+                    MovePieceToNode(m_nodeList[y, x].piece, 1f).SetEase(Ease.OutBounce);
+                }
+            }
+        }
+
         TweenerCore<Vector2, Vector2, VectorOptions> MovePieceToNode(PuzzlePiece piece,float duration)
         {
             ++m_movePieceCount;
@@ -327,7 +338,7 @@ namespace Core.UI
 
         bool CanDragPiece()
         {
-            return m_movePieceCount == 0;
+            return m_movePieceCount == 0 && GameManager.instance.currentGameMode.IsPlaying();
         }
 
         bool IsAnyPieceTranslateNow()
